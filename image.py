@@ -22,16 +22,16 @@ text2 = text.reshape(-1, 1)
 print(text2.shape)
 print(text2)
 
-im = Image.fromarray(text)
-im.save("your_file.jpeg")
-fig, ax = plt.subplots(1, 1)
-ax.hist(text.ravel(), bins=32, range=[0, 256])
-ax.set_xlim(0, 256)
-
-text_segmented = text > (85)
-image_show(text_segmented)
-
-text_threshold = filters.threshold_local(text,block_size=51, offset=10)
-image_show(text > text_threshold)
+# im = Image.fromarray(text)
+# im.save("your_file.jpeg")
+# fig, ax = plt.subplots(1, 1)
+# ax.hist(text.ravel(), bins=32, range=[0, 256])
+# ax.set_xlim(0, 256)
+#
+# text_segmented = text > (85)
+# image_show(text_segmented)
+#
+# text_threshold = filters.threshold_local(text,block_size=51, offset=10)
+# image_show(text > text_threshold)
 
 plt.show()
