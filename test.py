@@ -30,19 +30,40 @@ def pixel_hist(image):
 
 def char_split(row):
     transposed_row = np.transpose(row)
-    char_index = - 1
-    char_space = []
+    char_index = -1
+    is_char = []
     for t in transposed_row:
         char_index += 1
-        if np.isin(t, [255]).all() == True:
-            char_space.append(char_index)
+        if np.isin(t, [0]).any() == True:
+            is_char.append(char_index)
 
     list_of_chars = []
-    for s in range(1, len(char_space) - 1):
-        if char_space[s - 1] + 5 < char_space[s]:
-            char = transposed_row[char_space[s - 1]:char_space[s] + 1, :]
+    char_start = is_char[0]
+    for s in range(0, len(is_char)-1):
+        if is_char[s] + 1 == is_char[s + 1]:
+            continue
+
+        elif is_char[s] + 1 != is_char[s + 1]:
+            char_end = is_char[s]
+            start_new_char = is_char[s + 1]
+            space_size = start_new_char - char_end
+
+            char = transposed_row[char_start:char_end + 1, :]
             transposed_back = np.transpose(char)
             list_of_chars.append(transposed_back)
+
+            if space_size > 20:
+                space = transposed_row[char_end + 1:start_new_char, :]
+                transposed_back_space = np.transpose(space)
+                list_of_chars.append(transposed_back_space)
+
+            char_start = start_new_char
+
+    char_end = is_char[len(is_char) - 1]
+    char = transposed_row[char_start:char_end + 1, :]
+    transposed_back = np.transpose(char)
+    list_of_chars.append(transposed_back)
+
     return list_of_chars
 
 def row_split(image):
@@ -88,15 +109,16 @@ def main():
         counter += 1
         for char in row:
 
-            if np.shape(char)[0] < 100:
-                complemenraty_array = np.full((100 - np.shape(char)[0],np.shape(char)[1]), 255)
-                new_char = np.concatenate((char, complemenraty_array))
-            print(np.shape(new_char))
+            # if np.shape(char)[0] < 100:
+            #     complemenraty_array = np.full((100 - np.shape(char)[0],np.shape(char)[1]), 255)
+            #     new_char = np.concatenate((char, complemenraty_array))
+            print(np.shape(char))
 
-            image_show(new_char)
-            plt.show(block=False)
-            plt.pause(0.5)
-            plt.close("all")
+            image_show(char)
+            plt.show()
+            # plt.show(block=False)
+            # plt.pause(0.5)
+            # plt.close("all")
 
 
             inp = input("What is the character:")
@@ -107,9 +129,9 @@ def main():
 
             try:
                 print(char_dic[inp])
-                char_dic[inp].append([np.shape(new_char)[1], np.sum(new_char)])
+                char_dic[inp].append([np.shape(char)[1], np.sum(char)])
             except:
-                char_dic[inp] = [[np.shape(new_char)[1], np.sum(new_char)]]
+                char_dic[inp] = [[np.shape(char)[1], np.sum(char)]]
 
 
 

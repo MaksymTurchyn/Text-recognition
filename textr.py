@@ -14,14 +14,14 @@ np.set_printoptions(threshold=sys.maxsize)
 # Image
 img = io.imread('600 dpi.png', as_gray=True)  # 300 dpi shape(3507, 2550)
 
-
+# To show image
 def image_show(image):
-    fig, ax = plt.subplots(1, 1, figsize=(14, 14))
+    fig, ax = plt.subplots(1, 1, figsize=(7, 7))
     ax.imshow(image, cmap='gray')
     ax.axis('off')
     return fig, ax
 
-
+# To count pixels
 def pixel_hist(image):
     fig, ax = plt.subplots(1, 1, figsize=(14, 14))
     ax.hist(img, bins=32, range=[0, 256])
