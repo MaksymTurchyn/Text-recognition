@@ -39,7 +39,7 @@ def char_split(row):
 
     list_of_chars = []
     for s in range(1, len(char_space) - 1):
-        if char_space[s - 1] + 5 < char_space[s]:
+        if char_space[s - 1] + 2 < char_space[s]:
             char = transposed_row[char_space[s - 1]:char_space[s] + 1, :]
             transposed_back = np.transpose(char)
             list_of_chars.append(transposed_back)
@@ -55,19 +55,40 @@ def row_split(image):
         if np.isin(i, [255]).all() == True:
             row_space.append(row_index)
 
+    upper_bound = 0
     for s in range(1, len(row_space) - 1):
-        if row_space[s - 1] + 20 < row_space[s]:
+
+        if (row_space[s] - row_space[s - 1]) > 5 and (row_space[s] - row_space[s - 1]) < 20:
+            upper_bound = row_space[s - 1]
+
+        if row_space[s - 1] + 20 < row_space[s] and upper_bound == 0:
             row = image[row_space[s - 1]:row_space[s] + 1, :]
             list_of_char = char_split(row)
             lis_of_rows.append(list_of_char)
+
+        if row_space[s - 1] + 20 < row_space[s] and upper_bound > 0:
+            if row_space[s] - upper_bound > 100:
+                row = image[row_space[s - 1]:row_space[s] + 1, :]
+                list_of_char = char_split(row)
+                lis_of_rows.append(list_of_char)
+            else:
+                row = image[upper_bound:row_space[s] + 1, :]
+                list_of_char = char_split(row)
+                lis_of_rows.append(list_of_char)
+                upper_bound = 0
+
     return lis_of_rows
 
 def main():
-    characters = row_split(img)
-    for i in characters:
-        for j in i:
-            image_show(j)
-            plt.show()
+    characters_list = row_split(img)
+    for c in range(len(characters_list[0])):
+        print(np.shape(characters_list[0][c]))
+        image_show(characters_list[0][c])
+        plt.show()
+    # image_show(img)
+    # plt.show()
+
+
 
 if __name__ == '__main__':
     main()

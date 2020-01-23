@@ -55,19 +55,70 @@ def row_split(image):
         if np.isin(i, [255]).all() == True:
             row_space.append(row_index)
 
+    upper_bound = 0
     for s in range(1, len(row_space) - 1):
-        if row_space[s - 1] + 20 < row_space[s]:
+
+        if (row_space[s] - row_space[s - 1]) > 5 and (row_space[s] - row_space[s - 1]) < 20:
+            upper_bound = row_space[s - 1]
+
+        if row_space[s - 1] + 20 < row_space[s] and upper_bound == 0:
             row = image[row_space[s - 1]:row_space[s] + 1, :]
             list_of_char = char_split(row)
             lis_of_rows.append(list_of_char)
+
+        if row_space[s - 1] + 20 < row_space[s] and upper_bound > 0:
+            if row_space[s] - upper_bound > 100:
+                row = image[row_space[s - 1]:row_space[s] + 1, :]
+                list_of_char = char_split(row)
+                lis_of_rows.append(list_of_char)
+            else:
+                row = image[upper_bound:row_space[s] + 1, :]
+                list_of_char = char_split(row)
+                lis_of_rows.append(list_of_char)
+                upper_bound = 0
     return lis_of_rows
 
 def main():
-    characters = row_split(img)
-    for i in characters:
-        for j in i:
-            image_show(j)
-            plt.show()
+    char_dic = {}
+
+    characters_list = row_split(img) #[ [row[char(array)] ]
+
+    counter = 0
+    for row in characters_list:
+        counter += 1
+        for char in row:
+
+            if np.shape(char)[0] < 100:
+                complemenraty_array = np.full((100 - np.shape(char)[0],np.shape(char)[1]), 255)
+                new_char = np.concatenate((char, complemenraty_array))
+            print(np.shape(new_char))
+
+            image_show(new_char)
+            plt.show(block=False)
+            plt.pause(0.5)
+            plt.close("all")
+
+
+            inp = input("What is the character:")
+            if inp == 'save':
+                np.save('char_dic.npy', char_dic)
+                print(f"Row is {counter}")
+
+
+            try:
+                print(char_dic[inp])
+                char_dic[inp].append([np.shape(new_char)[1], np.sum(new_char)])
+            except:
+                char_dic[inp] = [[np.shape(new_char)[1], np.sum(new_char)]]
+
+
+
+
+
+
+
+
+
 
 if __name__ == '__main__':
     main()
