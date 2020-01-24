@@ -16,18 +16,18 @@ img = io.imread('600 dpi.png', as_gray=True)  # 300 dpi shape(3507, 2550)
 
 
 def image_show(image):
-    fig, ax = plt.subplots(1, 1, figsize=(14, 14))
+    fig, ax = plt.subplots(1, 1, figsize=(7, 7))
     ax.imshow(image, cmap='gray')
     ax.axis('off')
     return fig, ax
 
 
 def pixel_hist(image):
-    fig, ax = plt.subplots(1, 1, figsize=(14, 14))
+    fig, ax = plt.subplots(1, 1, figsize=(7, 7))
     ax.hist(img, bins=32, range=[0, 256])
     ax.set_xlim(0, 256)
 
-
+# Split characters in a row based on BLACK pixels
 def char_split(row):
     transposed_row = np.transpose(row)
     char_index = -1
@@ -64,8 +64,38 @@ def char_split(row):
     transposed_back = np.transpose(char)
     list_of_chars.append(transposed_back)
 
-    return list_of_chars
+    list_of_strip_chars = []
 
+    for char in list_of_chars:
+        line_index = - 1
+        line_space = []
+        for line in char:
+            line_index += 1
+            if np.isin(line, [255]).all() == True:
+                line_space.append(line_index)
+
+        upper_bound = - 1
+        for s in range(1, len(line_space)):
+
+            if (line_space[s] - line_space[s - 1]) > 5 and (line_space[s] - line_space[s - 1]) < 20:
+                upper_bound = line_space[s - 1]
+
+            if line_space[s - 1] + 20 < line_space[s] and upper_bound == - 1:
+                strip_char = char[line_space[s - 1]:line_space[s] + 1, :]
+                list_of_strip_chars.append(strip_char)
+
+            if line_space[s - 1] + 20 < line_space[s] and upper_bound >= 0:
+                if line_space[s] - upper_bound > 100:
+                    strip_char = char[line_space[s - 1]:line_space[s] + 1, :]
+                    list_of_strip_chars.append(strip_char)
+                else:
+                    strip_char = char[upper_bound:line_space[s] + 1, :]
+                    list_of_strip_chars.append(strip_char)
+                    upper_bound = - 1
+
+    return list_of_strip_chars
+
+# Split rows in an image based on WHITE pixels (spaces)
 def row_split(image):
     lis_of_rows = []
 
@@ -77,7 +107,7 @@ def row_split(image):
             row_space.append(row_index)
 
     upper_bound = 0
-    for s in range(1, len(row_space) - 1):
+    for s in range(1, len(row_space)):
 
         if (row_space[s] - row_space[s - 1]) > 5 and (row_space[s] - row_space[s - 1]) < 20:
             upper_bound = row_space[s - 1]
@@ -101,8 +131,8 @@ def row_split(image):
 
 def main():
     char_dic = {}
-
-    characters_list = row_split(img) #[ [row[char(array)] ]
+    characters_list = row_split(img)
+    # [ [row[char(array)] ]
 
     counter = 0
     for row in characters_list:
@@ -112,13 +142,12 @@ def main():
             # if np.shape(char)[0] < 100:
             #     complemenraty_array = np.full((100 - np.shape(char)[0],np.shape(char)[1]), 255)
             #     new_char = np.concatenate((char, complemenraty_array))
-            print(np.shape(char))
 
             image_show(char)
-            plt.show()
-            # plt.show(block=False)
-            # plt.pause(0.5)
-            # plt.close("all")
+            # plt.show()
+            plt.show(block=False)
+            plt.pause(0.5)
+            plt.close("all")
 
 
             inp = input("What is the character:")
@@ -129,9 +158,9 @@ def main():
 
             try:
                 print(char_dic[inp])
-                char_dic[inp].append([np.shape(char)[1], np.sum(char)])
+                char_dic[inp].append([np.shape(char)])
             except:
-                char_dic[inp] = [[np.shape(char)[1], np.sum(char)]]
+                char_dic[inp] = [[np.shape(char)]]
 
 
 

@@ -16,18 +16,18 @@ img = io.imread('600 dpi.png', as_gray=True)  # 300 dpi shape(3507, 2550)
 
 
 def image_show(image):
-    fig, ax = plt.subplots(1, 1, figsize=(14, 14))
+    fig, ax = plt.subplots(1, 1, figsize=(7, 7))
     ax.imshow(image, cmap='gray')
     ax.axis('off')
     return fig, ax
 
 
 def pixel_hist(image):
-    fig, ax = plt.subplots(1, 1, figsize=(14, 14))
+    fig, ax = plt.subplots(1, 1, figsize=(7, 7))
     ax.hist(img, bins=32, range=[0, 256])
     ax.set_xlim(0, 256)
 
-
+# Split characters in a row based on WHITE pixels
 def char_split(row):
     transposed_row = np.transpose(row)
     char_index = - 1
@@ -45,6 +45,7 @@ def char_split(row):
             list_of_chars.append(transposed_back)
     return list_of_chars
 
+# Split rows in an image based on WHITE pixels (spaces)
 def row_split(image):
     lis_of_rows = []
 
