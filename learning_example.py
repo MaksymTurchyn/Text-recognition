@@ -156,10 +156,9 @@ def main():
     characters_list = row_split(img)
     # characters_list = [list of rows[list of characters as array]]
 
-    counter = 0
     # Iterating through each row
     for row in characters_list:
-        counter += 1
+        text += "\n"
         # Iterating through each character
         for char in row:
             if np.isin(char, 255).all() == True:
@@ -168,12 +167,14 @@ def main():
 
             found_character = False
             shape_of_char = np.shape(char)
+
             # Comparing character with those in dictionary
             for key in char_dic:
-
                 if key == shape_of_char:
                     minimal_control_sum = 25000
                     corresponding_character = None
+                    comparison_array = None
+
                     for element in char_dic[key]:
                         comparison = element[1] - char
                         non_negative_comparison_array = np.where(comparison == 1, 100, comparison)
@@ -182,57 +183,36 @@ def main():
                                             np.count_nonzero(non_negative_comparison_array == 100)) /
                                             (np.count_nonzero(char == 0)))
 
-                        print(control_sum)
-                        print(control_fraction)
-                        print(f"Count of white pixels (255 - 0): {np.count_nonzero(non_negative_comparison_array == 255)}")
-                        print(f"Count of gray pixels (0 - 255 changed for 127): {np.count_nonzero(non_negative_comparison_array == 100)}")
-
-                        image_show(non_negative_comparison_array)
-                        plt.show()
-
                         if control_fraction < 0.19 and control_sum < minimal_control_sum:
                             minimal_control_sum = control_sum
                             corresponding_character = element[0]
-                            element[1] = np.where(non_negative_comparison_array > 0, 0, element[1])
+                            comparison_array = non_negative_comparison_array
                             found_character = True
 
                     if corresponding_character is not None:
                         text += corresponding_character
+                        image_show(comparison_array)
+                        plt.show(block=False)
                     break
 
             if found_character == False:
                 image_show(char)
-                # plt.show()
                 plt.show(block=False)
-                plt.pause(0.5)
-                plt.close("all")
 
                 inp = input("What is the character:")
-                text += inp
                 if inp == 'save':
-                    np.save('char_dic.npy', char_dic)
-                    print(f"Row is {counter}")
+                    np.save('char_dic(learn).npy', char_dic)
+                    return
+                else:
+                    text += inp
+                    plt.close("all")
 
-                try:
-                    print(char_dic[shape_of_char][0][0])
-                    char_dic[shape_of_char].append([inp, char])
-                except:
-                    char_dic[shape_of_char] = [[inp, char]]
-
+                    try:
+                        print(char_dic[shape_of_char][0][0])
+                        char_dic[shape_of_char].append([inp, char])
+                    except:
+                        char_dic[shape_of_char] = [[inp, char]]
             print(text)
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 if __name__ == '__main__':
     main()
