@@ -11,8 +11,11 @@ import skimage.color as color
 # Options
 np.set_printoptions(threshold=sys.maxsize)
 
-# Image
+# Read image
 img = io.imread('600 dpi.png', as_gray=True)  # 300 dpi shape(3507, 2550)
+
+# Load dictionary
+dictionary = np.load('char_dic.npy', allow_pickle='TRUE').item()
 
 
 def image_show(image):
@@ -65,9 +68,13 @@ def char_split(row):
     transposed_back = np.transpose(char)
     list_of_chars.append(transposed_back)
 
-    list_of_strip_chars = []
 
+    list_of_strip_chars = []
     for char in list_of_chars:
+        if np.isin(char, 255).all() == True:
+            list_of_strip_chars.append(char)
+            continue
+
         line_index = - 1
         line_space = []
         for line in char:
@@ -81,8 +88,21 @@ def char_split(row):
             if (line_space[s] - line_space[s - 1]) > 5 and (line_space[s] - line_space[s - 1]) < 20:
                 upper_bound = line_space[s - 1]
 
+
             if line_space[s - 1] + 20 < line_space[s] and upper_bound == - 1:
                 strip_char = char[line_space[s - 1]:line_space[s] + 1, :]
+                # clean_noise_from_top = True
+                # clean_noise_from_bottom = True
+                # while clean_noise_from_top == True or clean_noise_from_bottom == True:
+                #     if np.count_nonzero(strip_char[-1] == 0) * 2 < np.count_nonzero(strip_char[-2] == 0):
+                #         strip_char = strip_char[0:-1, :]
+                #     else:
+                #         clean_noise_from_top = False
+                #
+                #     if np.count_nonzero(strip_char[0] == 0) * 2 < np.count_nonzero(strip_char[1] == 0):
+                #         strip_char = strip_char[1:, :]
+                #     else:
+                #         clean_noise_from_bottom = False
                 list_of_strip_chars.append(strip_char)
 
             if line_space[s - 1] + 20 < line_space[s] and upper_bound >= 0:
@@ -142,6 +162,10 @@ def main():
         counter += 1
         # Iterating through each character
         for char in row:
+            if np.isin(char, 255).all() == True:
+                text += " "
+                continue
+
             found_character = False
             shape_of_char = np.shape(char)
             # Comparing character with those in dictionary
@@ -158,11 +182,18 @@ def main():
                                             np.count_nonzero(non_negative_comparison_array == 100)) /
                                             (np.count_nonzero(char == 0)))
 
+                        print(control_sum)
+                        print(control_fraction)
+                        print(f"Count of white pixels (255 - 0): {np.count_nonzero(non_negative_comparison_array == 255)}")
+                        print(f"Count of gray pixels (0 - 255 changed for 127): {np.count_nonzero(non_negative_comparison_array == 100)}")
+
+                        image_show(non_negative_comparison_array)
+                        plt.show()
+
                         if control_fraction < 0.19 and control_sum < minimal_control_sum:
                             minimal_control_sum = control_sum
                             corresponding_character = element[0]
                             element[1] = np.where(non_negative_comparison_array > 0, 0, element[1])
-                            plt.show()
                             found_character = True
 
                     if corresponding_character is not None:

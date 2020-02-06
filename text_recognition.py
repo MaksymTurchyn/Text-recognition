@@ -11,8 +11,11 @@ import skimage.color as color
 # Options
 np.set_printoptions(threshold=sys.maxsize)
 
-# Image
+# Read image
 img = io.imread('600 dpi.png', as_gray=True)  # 300 dpi shape(3507, 2550)
+
+# Load dictionary
+dictionary = np.load('char_dic.npy', allow_pickle='TRUE').item()
 
 
 def image_show(image):
@@ -68,6 +71,10 @@ def char_split(row):
     list_of_strip_chars = []
 
     for char in list_of_chars:
+        if np.isin(char, 255).all() == True:
+            list_of_strip_chars.append(char)
+            continue
+
         line_index = - 1
         line_space = []
         for line in char:
@@ -131,7 +138,7 @@ def row_split(image):
     return lis_of_rows
 
 def main():
-    char_dic = {}
+    char_dic = dictionary
     text = ""
     characters_list = row_split(img)
     # characters_list = [list of rows[list of characters as array]]
@@ -139,9 +146,14 @@ def main():
     counter = 0
     # Iterating through each row
     for row in characters_list:
+        text += "\n"
         counter += 1
         # Iterating through each character
         for char in row:
+            if np.isin(char, 255).all() == True:
+                text += " "
+                continue
+
             found_character = False
             shape_of_char = np.shape(char)
             # Comparing character with those in dictionary
@@ -150,45 +162,40 @@ def main():
                 if key == shape_of_char:
                     minimal_control_sum = 25000
                     corresponding_character = None
+
                     for element in char_dic[key]:
                         comparison = element[1] - char
+                        #
                         non_negative_comparison_array = np.where(comparison == 1, 100, comparison)
                         control_sum = np.sum(non_negative_comparison_array)
                         control_fraction = ((np.count_nonzero(non_negative_comparison_array == 255) +
                                             np.count_nonzero(non_negative_comparison_array == 100)) /
                                             (np.count_nonzero(char == 0)))
 
-                        print(control_sum)
-                        print(control_fraction)
-                        print(f"Count of white pixels (255 - 0): {np.count_nonzero(non_negative_comparison_array == 255)}")
-                        print(f"Count of gray pixels (0 - 255 changed for 127): {np.count_nonzero(non_negative_comparison_array == 100)}")
-
-                        image_show(char)
-                        image_show(element[1])
-                        image_show(non_negative_comparison_array)
-                        plt.show()
-
                         if control_fraction < 0.19 and control_sum < minimal_control_sum:
                             minimal_control_sum = control_sum
                             corresponding_character = element[0]
-                            element[1] = np.where(non_negative_comparison_array > 0, 0, element[1])
-                            image_show(element[1])
-                            plt.show()
                             found_character = True
+                            print(control_fraction)
+                            print(control_sum)
+                            print(corresponding_character)
+                            # image_show(non_negative_comparison_array)
+                            # plt.show()
+                            plt.show(block=False)
 
                     if corresponding_character is not None:
                         text += corresponding_character
+
                     break
 
             if found_character == False:
                 image_show(char)
                 # plt.show()
                 plt.show(block=False)
-                plt.pause(0.5)
-                plt.close("all")
 
                 inp = input("What is the character:")
                 text += inp
+                plt.close("all")
                 if inp == 'save':
                     np.save('char_dic.npy', char_dic)
                     print(f"Row is {counter}")
