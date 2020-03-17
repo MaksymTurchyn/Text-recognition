@@ -14,17 +14,18 @@ Here supervised machine learning begins
 The dictionary where we store our learning results structured as follows: {shape_of_character: [character(text), character(array)], ...}
 	
 4) iterate through every character, find the ones shape and compare it with keys in the dictionary
-			if the same key exists:
-				4.1) iterate through every value in this key and
-				4.2) subtract array(we are looking for) from  array(in dictionary)
-				4.3) the subtraction transform values as follows: 
-																										 0 - 0 -> 0 (match of black pixels)
-																										 255 - 255 -> 0 (match of white pixels)
-																										 255 - 0 -> 255 (pixels do not match)
-																										 0 - 255 -> 100 (pixels do not match)
-				4.4) calculate the control_sum of resulting array & fraction = (pixels that do not match) / (pixels that match)
-				We calculate those indicators to avoid over/underfitting and choose the best result if there are multiple
-				4.5) the corresponding character is found - concatenate it to the "text" variable
+if the same key exists:
+- iterate through every value in this key and
+- subtract array(we are looking for) from  array(in dictionary)
+- the subtraction transform values as follows: 
+																	 0 - 0 -> 0 (match of black pixels)
+																	255 - 255 -> 0 (match of white pixels)
+																	255 - 0 -> 255 (pixels do not match)
+																	0 - 255 -> 100 (pixels do not match)
+																	
+- calculate the control_sum of resulting array & fraction = (pixels that do not match) / (pixels that match)
+	We calculate those indicators to avoid over/underfitting and choose the best result if there are multiple
+- the corresponding character is found - concatenate it to the "text" variable
 				
 5) if the same key does not exist:
 - Show character
