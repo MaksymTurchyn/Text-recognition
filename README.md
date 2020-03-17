@@ -33,4 +33,5 @@ if the same key exists:
 - Add information to the dictionary
 								
 To witness the learning process run "learning_example.py" and type at least 3-4 lines of text
+When character is found - two or more figures appear and you can see the subtraction result of image we are looking for and those in the dictionary
 				
