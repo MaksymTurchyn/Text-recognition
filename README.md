@@ -31,5 +31,6 @@ if the same key exists:
 - Show character
 - Ask to input the character
 - Add information to the dictionary
-				
+								
+To witness the learning process run "learning_example.py" and type at least 3-4 lines of text
 				
